@@ -1,4 +1,4 @@
-# [CVPR 2023] H2ONet: Hand-Occlusion-and-Orientation-aware Network for Real-time 3D Hand Mesh Reconstruction
+# tra[CVPR 2023] H2ONet: Hand-Occlusion-and-Orientation-aware Network for Real-time 3D Hand Mesh Reconstruction
 
 <h4 align = "center">Hao Xu<sup>1,2</sup>, Tianyu Wang<sup>1</sup>, Xiao Tang<sup>1</sup>, Chi-Wing Fu<sup>1,2,3</sup></h4>
 <h4 align = "center"> <sup>1</sup>Department of Computer Science and Engineering</center></h4>
@@ -87,11 +87,13 @@ For training our single-frame and multi-frame models on the HO3D-v2 dataset, we 
 
 ## Testing
 
-To test our pre-trained model, 
+To test our pre-trained model,
 
 ```
 python test.py --model_dir=./experiment/multi_frame_dexycb/stage_2 --resume=./experiment/multi_frame_dexycb/stage_2/test_model_best.pth
 ```
+
+We provide the pre-trained multi-frame model on the DexYCB dataset. [[checkpoint](https://drive.google.com/file/d/11VLYLr5bjqCwUgqdihte1hoIcIrkTHt8/view?usp=sharing)]
 
 ## Citation
 

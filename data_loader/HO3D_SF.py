@@ -42,9 +42,6 @@ class HO3D_SF(Dataset):
         self.datalist = self.load_data()
         if self.data_split == "test":
             self.eval_result = [[], []]  #[pred_joints_list, pred_verts_list]
-        # self.joints_name = ("Wrist", "Index_1", "Index_2", "Index_3", "Middle_1", "Middle_2", "Middle_3", "Pinky_1", "Pinky_2", "Pinky_3",
-        #                     "Ring_1", "Ring_2", "Ring_3", "Thumb_1", "Thumb_2", "Thumb_3", "Thumb_4", "Index_4", "Middle_4", "Ring_4",
-        #                     "Pinly_4")
         self.joints_name = ('Wrist', 'Index_1', 'Index_2', 'Index_3', 'Middle_1', 'Middle_2', 'Middle_3', 'Pinky_1', 'Pinky_2', 'Pinky_3', 'Ring_1', 'Ring_2', 'Ring_3',
                             'Thumb_1', 'Thumb_2', 'Thumb_3', 'Thumb_4', 'Index_4', 'Middle_4', 'Ring_4', 'Pinly_4')
 
@@ -71,53 +68,6 @@ class HO3D_SF(Dataset):
         else:
             raise NotImplementedError
         return val_idx
-
-    def skip_frame(self, sort_datlist):
-        print("start skip frames...")
-        skip_sort_datalist = []
-        remain_idx = []
-        if os.path.exists("./data_loader/ho3d_remain_idx.npy"):
-            remain_idx = np.load("./data_loader/ho3d_remain_idx.npy")
-            remain_idx = remain_idx.tolist()
-            for idx in range(len(sort_datlist)):
-                if idx in remain_idx:
-                    skip_sort_datalist.append(sort_datlist[idx])
-        else:
-            for idx, cur_data in enumerate(sort_datlist):
-                img_path = cur_data["img_path"]
-                frame_idx = int(img_path.split("/")[-1].split(".")[0])
-                if frame_idx == 0:
-                    skip_sort_datalist.append(cur_data)
-                    remain_idx.append(idx)
-                    pre_mano_pose = cur_data["mano_pose"]
-                    pre_mano_pose = pre_mano_pose.reshape(-1, 3)
-                    pre_glob_rot_aa = pre_mano_pose[0]
-                    pre_glob_rot_mat = p3dt.axis_angle_to_matrix(torch.from_numpy(pre_glob_rot_aa))
-                    # print("reset pre glob rot mat ", img_path)
-                else:
-                    # compute rot diff with previous frame
-                    cur_mano_pose = cur_data["mano_pose"]
-                    cur_mano_pose = cur_mano_pose.reshape(-1, 3)
-                    cur_glob_rot_aa = cur_mano_pose[0]
-                    cur_glob_rot_mat = p3dt.axis_angle_to_matrix(torch.from_numpy(cur_glob_rot_aa))
-                    diff_rot_mat = pre_glob_rot_mat.T @ cur_glob_rot_mat
-                    diff_euler_angle = p3dt.matrix_to_euler_angles(diff_rot_mat, convention="XYZ")
-                    diff_euler_angle = torch.abs(diff_euler_angle / np.pi * 180)
-                    # not skip
-                    if torch.sum(diff_euler_angle > 5) != 0:
-                        skip_sort_datalist.append(cur_data)
-                        remain_idx.append(idx)
-                        pre_glob_rot_mat = cur_glob_rot_mat
-                        # print("reset pre glob rot mat ", img_path)
-                        # print("not skip", frame_idx, diff_euler_angle)
-                    # skip
-                    else:
-                        # print("skip", frame_idx, diff_euler_angle)
-                        continue
-            if not os.path.exists("./data_loader/ho3d_remain_idx.npy"):
-                np.save("./data_loader/ho3d_remain_idx.npy", np.array(remain_idx))
-        print("done skip frames...")
-        return skip_sort_datalist
 
     def load_data(self):
         db = COCO(osp.join(self.annot_path, "HO3D_{}_data.json".format(self.data_split_for_load)))
@@ -182,8 +132,6 @@ class HO3D_SF(Dataset):
             for cnt, i in enumerate(sort_idx):
                 sort_datalist.append(datalist[i])
 
-            sort_datalist = self.skip_frame(sort_datalist)
-
             val_idx = self.split_train_val_data(sort_datalist, split_manner=self.cfg.data.split_manner)
             if self.data_split == "train":
                 sort_datalist = [sort_datalist[i] for i in range(len(sort_datalist)) if i not in val_idx]
@@ -230,8 +178,6 @@ class HO3D_SF(Dataset):
 
             # 3D joint camera coordinate
             joints_coord_cam = data["joints_coord_cam"]
-            # root_joint_cam = copy.deepcopy(joints_coord_cam[self.root_joint_idx])
-            # joints_coord_cam -= root_joint_cam[None, :]  # root-relative
             # 3D data rotation augmentation
             rot_aug_mat = np.array(
                 [[np.cos(np.deg2rad(-rot)), -np.sin(np.deg2rad(-rot)), 0], [np.sin(np.deg2rad(-rot)), np.cos(np.deg2rad(-rot)), 0], [0, 0, 1]], dtype=np.float32)
@@ -289,23 +235,11 @@ class HO3D_SF(Dataset):
         for n in range(batch_size):
             data = annots[cur_sample_idx + n]
             output = batch_output[n]
-            # pred_verts = output["pred_verts3d_wo_gr"]
-            # pred_joints = output["pred_joints3d_wo_gr"]
-            # pred_glob_rot = output["pred_glob_rot"]
-
-            # # root align
-            # gt_root_joint_cam = data["root_joint_cam"]
-            # pred_verts = pred_verts - pred_joints[self.root_joint_idx]
-            # pred_joints = pred_joints - pred_joints[self.root_joint_idx]
-            # pred_glob_rot_mat = p3dt.rotation_6d_to_matrix(torch.from_numpy(pred_glob_rot)).numpy()
-            # pred_verts = np.matmul(pred_verts, pred_glob_rot_mat.T)
-            # pred_joints = np.matmul(pred_joints, pred_glob_rot_mat.T)
-            # pred_verts = pred_verts + gt_root_joint_cam
-            # pred_joints = pred_joints + gt_root_joint_cam
-
+            
             pred_verts = output["pred_verts3d_w_gr"]
             pred_joints = output["pred_joints3d_w_gr"]
             gt_root_joint_cam = data["root_joint_cam"]
+            # root align
             pred_verts = pred_verts - pred_joints[self.root_joint_idx] + gt_root_joint_cam
             pred_joints = pred_joints - pred_joints[self.root_joint_idx] + gt_root_joint_cam
 
@@ -322,15 +256,6 @@ class HO3D_SF(Dataset):
     def print_eval_result(self, epoch):
         output_json_file = osp.join(self.cfg.base.model_dir, "pred.{}.e{}.json".format(self.cfg.base.exp_name, epoch))
         output_zip_file = osp.join(self.cfg.base.model_dir, "pred.{}.e{}.zip".format(self.cfg.base.exp_name, epoch))
-
-        # with open(osp.join(self.root_dir, "{}.txt".format(self.data_split_for_load)), "r") as f:
-        #     lines = f.readlines()
-        # sort_idx = np.argsort(lines)
-        # undo_sort_idx = np.argsort(sort_idx)
-        # self.undo_sort_eval_result = [[], []]
-        # for cnt, i in enumerate(undo_sort_idx):
-        #     self.undo_sort_eval_result[0].append(self.eval_result[0][i])
-        #     self.undo_sort_eval_result[1].append(self.eval_result[1][i])
 
         with open(output_json_file, "w") as f:
             json.dump(self.eval_result, f)

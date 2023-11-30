@@ -1,4 +1,4 @@
-# tra[CVPR 2023] H2ONet: Hand-Occlusion-and-Orientation-aware Network for Real-time 3D Hand Mesh Reconstruction
+# [CVPR 2023] H2ONet: Hand-Occlusion-and-Orientation-aware Network for Real-time 3D Hand Mesh Reconstruction
 
 <h4 align = "center">Hao Xu<sup>1,2</sup>, Tianyu Wang<sup>1</sup>, Xiao Tang<sup>1</sup>, Chi-Wing Fu<sup>1,2,3</sup></h4>
 <h4 align = "center"> <sup>1</sup>Department of Computer Science and Engineering</center></h4>

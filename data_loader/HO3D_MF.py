@@ -168,9 +168,6 @@ class HO3D_MF(Dataset):
         img_0 = load_img(img_path_0)
         img_1 = load_img(img_path_1)  # previous short term
         img_2 = load_img(img_path_2)  # previous long term
-        # img_0 = load_img_npy(img_path_0.replace("rgb", "npy").replace("png", "npy"))
-        # img_1 = load_img_npy(img_path_1.replace("rgb", "npy").replace("png", "npy"))  # previous short term
-        # img_2 = load_img_npy(img_path_2.replace("rgb", "npy").replace("png", "npy"))  # previous long term
 
         img_list = [img_0, img_1, img_2]
         bbox_list = [bbox_0, bbox_1, bbox_2]
@@ -200,8 +197,6 @@ class HO3D_MF(Dataset):
 
                 # 3D joint camera coordinate
                 joints_coord_cam = data["joints_coord_cam"]
-                # root_joint_cam = copy.deepcopy(joints_coord_cam[self.root_joint_idx])
-                # joints_coord_cam -= root_joint_cam[None, :]  # root-relative
                 # 3D data rotation augmentation
                 rot_aug_mat = np.array(
                     [[np.cos(np.deg2rad(-rot)), -np.sin(np.deg2rad(-rot)), 0], [np.sin(np.deg2rad(-rot)), np.cos(np.deg2rad(-rot)), 0], [0, 0, 1]], dtype=np.float32)
@@ -245,23 +240,10 @@ class HO3D_MF(Dataset):
         for n in range(batch_size):
             data = annots[cur_sample_idx + n]
             output = batch_output[n]
-            # pred_verts = output["pred_verts3d_wo_gr"]
-            # pred_joints = output["pred_joints3d_wo_gr"]
-            # pred_glob_rot = output["pred_glob_rot"]
-
-            # # root align
-            # gt_root_joint_cam = data["root_joint_cam"]
-            # pred_verts = pred_verts - pred_joints[self.root_joint_idx]
-            # pred_joints = pred_joints - pred_joints[self.root_joint_idx]
-            # pred_glob_rot_mat = p3dt.rotation_6d_to_matrix(torch.from_numpy(pred_glob_rot)).numpy()
-            # pred_verts = np.matmul(pred_verts, pred_glob_rot_mat.T)
-            # pred_joints = np.matmul(pred_joints, pred_glob_rot_mat.T)
-            # pred_verts = pred_verts + gt_root_joint_cam
-            # pred_joints = pred_joints + gt_root_joint_cam
-
             pred_verts = output["pred_verts3d_w_gr"]
             pred_joints = output["pred_joints3d_w_gr"]
             gt_root_joint_cam = data["root_joint_cam"]
+            # root align
             pred_verts = pred_verts - pred_joints[self.root_joint_idx] + gt_root_joint_cam
             pred_joints = pred_joints - pred_joints[self.root_joint_idx] + gt_root_joint_cam
 
@@ -278,15 +260,6 @@ class HO3D_MF(Dataset):
     def print_eval_result(self, epoch):
         output_json_file = osp.join(self.cfg.base.model_dir, "pred.{}.e{}.json".format(self.cfg.base.exp_name, epoch))
         output_zip_file = osp.join(self.cfg.base.model_dir, "pred.{}.e{}.zip".format(self.cfg.base.exp_name, epoch))
-
-        # with open(osp.join(self.root_dir, "{}.txt".format(self.data_split_for_load)), "r") as f:
-        #     lines = f.readlines()
-        # sort_idx = np.argsort(lines)
-        # undo_sort_idx = np.argsort(sort_idx)
-        # self.undo_sort_eval_result = [[], []]
-        # for cnt, i in enumerate(undo_sort_idx):
-        #     self.undo_sort_eval_result[0].append(self.eval_result[0][i])
-        #     self.undo_sort_eval_result[1].append(self.eval_result[1][i])
 
         with open(output_json_file, "w") as f:
             json.dump(self.eval_result, f)

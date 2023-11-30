@@ -19,7 +19,7 @@ Our presentation video: [[Youtube](https://www.youtube.com/watch?v=JN-G8ePC3Mk)]
 * [X] ~~Occlusion label preparation code for the DexYCB dataset~~
 * [X] ~~Occlusion label preparation code for the HO3D dataset~~
 * [X] ~~Multi-frame model code~~
-* [X] Training config details
+* [X] ~~Training config details~~
 * [ ] model checkpoints and evaluation code
 
 ## Install

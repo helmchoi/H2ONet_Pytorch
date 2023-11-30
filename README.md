@@ -20,7 +20,7 @@ Our presentation video: [[Youtube](https://www.youtube.com/watch?v=JN-G8ePC3Mk)]
 * [X] ~~Occlusion label preparation code for the HO3D dataset~~
 * [X] ~~Multi-frame model code~~
 * [X] ~~Training config details~~
-* [ ] model checkpoints and evaluation code
+* [X] model checkpoints and evaluation code
 
 ## Install
 
@@ -83,7 +83,15 @@ python3 train.py --model_dir=./experiment/multi_frame_dexycb/stage_1 --resume=./
 python3 train.py --model_dir=./experiment/multi_frame_dexycb/stage_2 --resume=./experiment/multi_frame_dexycb/stage_1/test_model_best.pth -ow
 ```
 
-For training our single-frame and multi-frame models on the HO3D-v2 dataset, we follow the same approach and change the dataset name in the scripts.
+For training our single-frame and multi-frame models on the HO3D-v2 dataset, we follow the same approach and change the dataset name in the scripts. Note that due to the limited scale of the HO3D-v2 dataset, for training our model in stage 2, we first pre-train it on the DexYCB dataset for a few epochs (<5) to avoid unstable training (e.g., NaN in training).
+
+## Testing
+
+To test our pre-trained model, 
+
+```
+python test.py --model_dir=./experiment/multi_frame_dexycb/stage_2 --resume=./experiment/multi_frame_dexycb/stage_2/test_model_best.pth
+```
 
 ## Citation
 

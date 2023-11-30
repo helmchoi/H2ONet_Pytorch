@@ -102,17 +102,36 @@ class EdgeLengthLoss(nn.Module):
 def compute_loss(cfg, input, output):
 
     loss = {}
-    if cfg.loss.name in ["h2onet"]:
+    if cfg.loss.name in ["h2onet_sf"]:
         normal_loss = NormalVectorLoss(mano.face)
         edge_loss = EdgeLengthLoss(mano.face)
         loss["verts_wo_gr_loss"] = F.l1_loss(output["pred_verts3d_wo_gr"], output["gt_verts3d_wo_gr"])
-        loss["verts_w_gr_loss"] = F.l1_loss(output["pred_verts3d_w_gr"], output["gt_verts3d_w_gr"])
         loss["joints_wo_gr_loss"] = F.l1_loss(output["pred_joints3d_wo_gr"], output["gt_joints3d_wo_gr"])
-        loss["joints_w_gr_loss"] = F.l1_loss(output["pred_joints3d_w_gr"], output["gt_joints3d_w_gr"])
-        loss["glob_rot_loss"] = F.mse_loss(output["pred_glob_rot_mat"], output["gt_glob_rot_mat"])
-        loss["joint_img_loss"] = F.l1_loss(output["pred_joints_img"], input["joints_img"])
         loss["normal_wo_gr_loss"] = 0.1 * normal_loss(output["pred_verts3d_wo_gr"], output["gt_verts3d_wo_gr"])
         loss["edge_wo_gr_loss"] = edge_loss(output["pred_verts3d_wo_gr"], output["gt_verts3d_wo_gr"])
+        loss["joint_img_loss"] = F.l1_loss(output["pred_joints_img"], input["joints_img"])
+        if cfg.loss.w_gr:
+            loss["verts_w_gr_loss"] = F.l1_loss(output["pred_verts3d_w_gr"], output["gt_verts3d_w_gr"])
+            loss["joints_w_gr_loss"] = F.l1_loss(output["pred_joints3d_w_gr"], output["gt_joints3d_w_gr"])
+            loss["glob_rot_loss"] = F.mse_loss(output["pred_glob_rot_mat"], output["gt_glob_rot_mat"])
+    
+    elif cfg.loss.name in ["h2onet_mf"]:
+        normal_loss = NormalVectorLoss(mano.face)
+        edge_loss = EdgeLengthLoss(mano.face)
+        cls_loss = torch.nn.CrossEntropyLoss()
+        loss["verts_wo_gr_loss"] = F.l1_loss(output["pred_verts3d_wo_gr"], output["gt_verts3d_wo_gr"])
+        loss["joints_wo_gr_loss"] = F.l1_loss(output["pred_joints3d_wo_gr"], output["gt_joints3d_wo_gr"])
+        loss["normal_wo_gr_loss"] = 0.1 * normal_loss(output["pred_verts3d_wo_gr"], output["gt_verts3d_wo_gr"])
+        loss["edge_wo_loss"] = edge_loss(output["pred_verts3d_wo_gr"], output["gt_verts3d_wo_gr"])
+        loss["joint_img_loss"] = F.l1_loss(output["pred_joints_img"], output["gt_joints_img"])
+        loss["occ_loss"] = cls_loss(output["pred_occ"], output["gt_occ"].long())
+        if cfg.loss.w_gr:
+            loss["verts_w_gr_loss"] = F.l1_loss(output["pred_verts3d_w_gr"], output["gt_verts3d_w_gr"])
+            loss["joints_w_gr_loss"] = F.l1_loss(output["pred_joints3d_w_gr"], output["gt_joints3d_w_gr"])
+            loss["glob_rot_loss"] = F.mse_loss(output["pred_glob_rot_mat"], output["gt_glob_rot_mat"])
+            loss["normal_loss"] = 0.1 * normal_loss(output["pred_verts3d_w_gr"], output["gt_verts3d_w_gr"])
+            loss["edge_loss"] = edge_loss(output["pred_verts3d_w_gr"], output["gt_verts3d_w_gr"])
+
     else:
         raise NotImplementedError
 

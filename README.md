@@ -17,9 +17,9 @@ Our presentation video: [[Youtube](https://www.youtube.com/watch?v=JN-G8ePC3Mk)]
 
 * [X] ~~Single-frame model code~~
 * [X] ~~Occlusion label preparation code for the DexYCB dataset~~
-* [ ] Occlusion label preparation code for the HO3D dataset
-* [ ] Multi-frame model code
-* [ ] Training config details
+* [X] ~~Occlusion label preparation code for the HO3D dataset~~
+* [X] ~~Multi-frame model code~~
+* [X] Training config details
 * [ ] model checkpoints and evaluation code
 
 ## Install
@@ -57,21 +57,33 @@ We evaluate different models on the DexYCB and HO3D datasets. The pre-processed 
 |   |   |   |--DEX_YCB_s0_test_data.json
 ```
 
-
-
 ## Occlusion Label Preparation
 
-Our single-frame model does not need the occlusion prediction. To train the fingle-level occlusion classifier in our multi-frame model, we first prepare the occlusion label from the provided ground truths. Please find more details in `occ_label_preparation/generate_dexycb_occ.py`.
+Our single-frame model does not need the occlusion prediction. To train the fingle-level occlusion classifier in our multi-frame model, we first prepare the occlusion label from the provided ground truths. Please find more details in `occ_label_preparation`.
 
 ## Training
+
+We adopt a two-stage training strategy: (i) hand shape reconstruction at canonical pose; and (ii) hand orientation regression based on the model trained in (i).
 
 For training our single-frame model on the DexYCB dataset,
 
 ```
-python3 train.py --model_dir=./experiment/single_frame_dexycb/
+# stage 1
+python3 train.py --model_dir=./experiment/single_frame_dexycb/stage_1
+# stage 2
+python3 train.py --model_dir=./experiment/single_frame_dexycb/stage_2 --resume=./experiment/single_frame_dexycb/stage_1/test_model_best.pth -ow
 ```
 
-Note that we only provide a reference config currently and will provide more details in the near future. We adopt a two-stage training strategy: (i) hand shape reconstruction at canonical pose; and (ii) hand orientation regression based on the model trained in (i).
+For training our multi-frame model on the DexYCB dataset, we first load the pre-trained single-frame model (stage 1).
+
+```
+# stage 1
+python3 train.py --model_dir=./experiment/multi_frame_dexycb/stage_1 --resume=./experiment/single_frame_dexycb/stage_1/test_model_best.pth -ow
+# stage 2
+python3 train.py --model_dir=./experiment/multi_frame_dexycb/stage_2 --resume=./experiment/multi_frame_dexycb/stage_1/test_model_best.pth -ow
+```
+
+For training our single-frame and multi-frame models on the HO3D-v2 dataset, we follow the same approach and change the dataset name in the scripts.
 
 ## Citation
 

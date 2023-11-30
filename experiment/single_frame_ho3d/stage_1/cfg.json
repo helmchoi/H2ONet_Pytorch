@@ -1,42 +1,45 @@
 {
     "base": {
-        "exp_name": "h2onet",
-        "model_dir": "experiment/single_frame_dexycb"
+        "exp_name": "ho3d_h2onet_sf",
+        "model_dir": "experiment/single_frame_ho3d/stage_1"
     },
     "data": {
-        "name": "DEX_YCB_SF",
+        "name": "HO3D_SF",
         "transforms_type": "h2onet",
         "eval_type": [
-            "test"
+            "val"
         ],
         "input_img_shape": [
             128,
             128
-        ]
+        ],
+        "split_manner": "uniform",
+        "rot_prob": 0.6
     },
     "model": {
-        "name": "h2onet",
+        "name": "h2onet_sf",
         "pretrain": true
     },
     "loss": {
-        "name": "h2onet"
+        "name": "h2onet_sf",
+        "w_gr": false
     },
     "metric": {
         "major_metric": "score"
     },
     "train": {
-        "num_epochs": 38,
-        "batch_size": 32,
+        "num_epochs": 90,
+        "batch_size": 128,
         "num_workers": 20
     },
     "test": {
-        "batch_size": 48,
+        "batch_size": 128,
         "num_workers": 20
     },
     "summary": {
         "save_summary_steps": 50,
         "save_latest_freq": 1,
-        "save_best_after": 0
+        "save_best_after": 10
     },
     "optimizer": {
         "name": "adam",
@@ -45,7 +48,9 @@
     "scheduler": {
         "name": "step",
         "milestones": [
-            30
+            30,
+            50,
+            70
         ],
         "gamma": 0.1
     }

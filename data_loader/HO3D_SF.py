@@ -29,12 +29,7 @@ class HO3D_SF(Dataset):
         self.transform = transform
         self.data_split = data_split
         self.data_split_for_load = "train" if data_split == "train" or data_split == "val" else "evaluation"
-        self.server_root_dir = "/research/d4/rshr/xuhao/data/HO3D_v2"
-        self.local_root_dir = "/data1/dataset/HO3D_v2"
-        if os.path.exists(self.server_root_dir):
-            self.root_dir = self.server_root_dir
-        else:
-            self.root_dir = self.local_root_dir
+        self.root_dir = "data/HO3D_v2"
         self.annot_path = osp.join(self.root_dir, "annotations")
         self.root_joint_idx = 0
         self.mano = MANO()

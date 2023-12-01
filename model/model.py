@@ -132,8 +132,6 @@ class H2ONet_MF(nn.Module):
         self.mano_layer = mano.layer
         self.mano_joint_reg = torch.from_numpy(mano.joint_regressor)
         self.mano_joint_reg = torch.nn.Parameter(self.mano_joint_reg)
-        self.mano_joint_reg_copy = torch.from_numpy(mano.joint_regressor)
-        self.mano_joint_reg_copy = torch.nn.Parameter(self.mano_joint_reg_copy)
 
     def forward(self, input):
         x_0, x_1, x_2 = input["img_0"], input["img_1"], input["img_2"]

@@ -116,8 +116,8 @@ class H2ONet_MF(nn.Module):
         self.cfg = cfg
         latent_size = 256
         self.backbone = H2ONet_Backnone(cfg=self.cfg, latent_size=latent_size, kpts_num=21)
-        template_fp = "model/mob_recon/template/template.ply"
-        transform_fp = "model/mob_recon/template/transform.pkl"
+        template_fp = "model/h2onet/template/template.ply"
+        transform_fp = "model/h2onet/template/transform.pkl"
         spiral_indices, _, up_transform, tmp = spiral_tramsform(transform_fp, template_fp, ds_factors=[2, 2, 2, 2], seq_length=[9, 9, 9, 9], dilation=[1, 1, 1, 1])
         for i in range(len(up_transform)):
             up_transform[i] = (*up_transform[i]._indices(), up_transform[i]._values())

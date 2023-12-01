@@ -87,11 +87,6 @@ class HO3D_MF(Dataset):
                 if bbox is None:
                     continue
 
-                # bbox_center_x = (bbox[0] + bbox[2]) / 2.0 - (img["width"] / 2.0)
-                # bbox_center_y = (bbox[1] + bbox[3]) / 2.0 - (img["height"] / 2.0)
-                # bbox_size = np.max(np.array([bbox[2] / img["width"], bbox[3] / img["height"]]))
-                # bbox_pos = np.array([bbox_center_x, bbox_center_y, bbox_size])
-
                 mano_pose = np.array(ann["mano_param"]["pose"], dtype=np.float32)
                 mano_shape = np.array(ann["mano_param"]["shape"], dtype=np.float32)
 

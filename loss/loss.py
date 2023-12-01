@@ -210,7 +210,7 @@ def compute_occ_acc(pred_occ, gt_occ):
 
 def compute_metric(cfg, input, output):
     metric = {}
-    if cfg.loss.name in ["h2onet"]:
+    if cfg.loss.name in ["h2onet_sf"]:
         normal_loss = NormalVectorLoss(mano.face)
         edge_loss = EdgeLengthLoss(mano.face)
         metric["verts_wo_gr"] = F.l1_loss(output["pred_verts3d_wo_gr"], output["gt_verts3d_wo_gr"])
@@ -221,6 +221,31 @@ def compute_metric(cfg, input, output):
         metric["joint_img"] = F.l1_loss(output["pred_joints_img"], input["joints_img"])
         metric["normal"] = 0.1 * normal_loss(output["pred_verts3d_wo_gr"], output["gt_verts3d_wo_gr"])
         metric["edge"] = edge_loss(output["pred_verts3d_wo_gr"], output["gt_verts3d_wo_gr"])
+
+    elif cfg.loss.name in ["h2onet_mf"]:
+        normal_loss = NormalVectorLoss(mano.face)
+        edge_loss = EdgeLengthLoss(mano.face)
+        cls_loss = torch.nn.CrossEntropyLoss()
+
+        B = output["pred_verts3d_wo_gr"].size()[0] // 3
+        metric["verts_w_gr"] = F.l1_loss(output["pred_verts3d_w_gr"][:B, ...], output["gt_verts3d_w_gr"][:B, ...])
+        metric["joints_w_gr"] = F.l1_loss(output["pred_joints3d_w_gr"][:B, ...], output["gt_joints3d_w_gr"][:B, ...])
+        metric["verts_wo_gr"] = F.l1_loss(output["pred_verts3d_wo_gr"][:B, ...], output["gt_verts3d_wo_gr"][:B, ...])
+        metric["joints_wo_gr"] = F.l1_loss(output["pred_joints3d_wo_gr"][:B, ...], output["gt_joints3d_wo_gr"][:B, ...])
+        if "gt_val_glob_rot_mat" not in output:
+            metric["glob_rot_loss"] = F.mse_loss(torch.matmul(output["pred_glob_rot_mat"][:B, ...].permute(0, 2, 1), output["gt_glob_rot_mat"][:B, ...]),
+                                                 torch.eye(3).view(1, 3, 3).repeat(B, 1, 1).to(output["gt_glob_rot_mat"].device))
+        else:
+            metric["glob_rot_loss"] = F.mse_loss(
+                torch.matmul(output["pred_glob_rot_mat"].permute(0, 2, 1), output["gt_val_glob_rot_mat"]),
+                torch.eye(3).view(1, 3, 3).repeat(output["gt_val_glob_rot_mat"].size()[0], 1, 1).to(output["gt_val_glob_rot_mat"].device))
+
+        metric["joint_img"] = F.l1_loss(output["pred_joints_img"][:B, ...], output["gt_joints_img"][:B, ...])
+        metric["normal"] = 0.1 * normal_loss(output["pred_verts3d_w_gr"][:B, ...], output["gt_verts3d_w_gr"][:B, ...])
+        metric["edge"] = edge_loss(output["pred_verts3d_w_gr"][:B, ...], output["gt_verts3d_w_gr"][:B, ...])
+        metric["occ"] = cls_loss(output["pred_occ"][:B, ...], output["gt_occ"][:B, ...].long())
+        occ_acc = compute_occ_acc(output["pred_occ"][:B, ...], output["gt_occ"][:B, ...])
+        metric.update(occ_acc)
 
     else:
         raise NotImplementedError

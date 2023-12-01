@@ -109,7 +109,6 @@ class H2ONet_SF(nn.Module):
         return output
 
 
-
 class H2ONet_MF(nn.Module):
 
     def __init__(self, cfg):

@@ -13,6 +13,12 @@ Our presentation video: [[Youtube](https://www.youtube.com/watch?v=JN-G8ePC3Mk)]
 
 ![poster](./files/poster.png)
 
+## Custom hand dataset (HL) running
+```
+python test_HL.py --model_dir=./experiment/multi_frame_HL/stage_2 --resume=./experiment/multi_frame_dexycb/stage_2/dexycb_h2onet_mf.pth --out_dir=data/<DATA_NAME>
+```
+Data location: images(./data/<EXP_NAME>/images) -> generate annotations by running generate_json.py
+
 ## Todo List
 
 * [X] ~~Single-frame model code~~

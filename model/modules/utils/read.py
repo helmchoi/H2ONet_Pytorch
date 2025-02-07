@@ -3,7 +3,7 @@ from torch_geometric.data import Data
 from torch_geometric.utils import to_undirected
 import openmesh as om
 from os import path as osp
-from model.mob_recon.utils import utils, mesh_sampling
+from model.modules.utils import utils, mesh_sampling
 from psbody.mesh import Mesh
 import pickle
 

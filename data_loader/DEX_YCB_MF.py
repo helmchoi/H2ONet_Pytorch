@@ -185,7 +185,7 @@ class DEX_YCB_MF(torch.utils.data.Dataset):
                 mano_pose = mano_pose.reshape(-1)
 
                 # occ
-                occ_info_path = data["img_path"].replace("color", "occ_v2").replace("jpg", "json")
+                occ_info_path = data["img_path"].replace("color", "occ").replace("jpg", "json")
                 with open(occ_info_path, "r") as f:
                     occ_info = json.load(f)
                 occ_gt = np.array([occ_info["thumb"], occ_info["index"], occ_info["middle"], occ_info["ring"], occ_info["little"], occ_info["global"]])
@@ -220,7 +220,7 @@ class DEX_YCB_MF(torch.utils.data.Dataset):
                 joints_img[:, 1] /= self.cfg.data.input_img_shape[0]
 
                 # occ
-                occ_info_path = data["img_path"].replace("color", "occ_v2").replace("jpg", "json")
+                occ_info_path = data["img_path"].replace("color", "occ").replace("jpg", "json")
                 with open(occ_info_path, "r") as f:
                     occ_info = json.load(f)
                 occ_gt = np.array([occ_info["thumb"], occ_info["index"], occ_info["middle"], occ_info["ring"], occ_info["little"], occ_info["global"]])

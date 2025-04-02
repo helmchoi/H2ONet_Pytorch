@@ -48,6 +48,9 @@ def test(model, mng: Manager, out_dir):
             batch_input = tool.tensor_gpu(batch_input)
 
             # Compute model output
+            if batch_idx == 0:  # warmup
+                for _ in range(5):
+                    _ = model(batch_input)
             t0 = time.time()
             batch_output = model(batch_input)
             t1 = time.time()
@@ -96,7 +99,7 @@ def test(model, mng: Manager, out_dir):
                 for jnt in batch_output[imgidx]["pred_joints_img"]:
                     img_patch = cv2.circle(img_patch, (int(jnt[0] * np.shape(img_patch)[0]), int(jnt[1] * np.shape(img_patch)[1])),
                                            3, (0,0,255), 3)
-                cv2.imwrite(out_dir + "/vis/" + imgpath[29:], img_patch)
+                cv2.imwrite(out_dir + "/vis/" + imgpath.split("/")[-1], img_patch)
 
             # # evaluate
             # metric = mng.dataset[split].evaluate(batch_output, cur_sample_idx)

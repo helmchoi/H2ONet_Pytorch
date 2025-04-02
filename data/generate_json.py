@@ -9,27 +9,27 @@ images are grouped: '_0.png', '_1.png', '_2.png'
 
 WIDTH = 1280
 HEIGHT = 720
-folder_name = "250207_bare_hand/"
+folder_name = "2.Qual/"
 imgs = sorted(os.listdir(folder_name + "images/"))
 
 images_list = []
 annot_list = []
 imgcnt = 0
 for imgname in imgs:
-    if (int(imgname[-5]) == 0):
-        img_dict = {}
-        img_dict["id"] = imgcnt
-        img_dict["file_name"] = "images/" + imgname
-        img_dict["width"] = WIDTH
-        img_dict["height"] = HEIGHT
-        images_list.append(img_dict)
+    # if (int(imgname[-5]) == 0):
+    img_dict = {}
+    img_dict["id"] = imgcnt
+    img_dict["file_name"] = "images/" + imgname
+    img_dict["width"] = WIDTH
+    img_dict["height"] = HEIGHT
+    images_list.append(img_dict)
 
-        annot_dict = {}
-        annot_dict["id"] = imgcnt
-        annot_dict["image_id"] = imgcnt
-        annot_list.append(annot_dict)
+    annot_dict = {}
+    annot_dict["id"] = imgcnt
+    annot_dict["image_id"] = imgcnt
+    annot_list.append(annot_dict)
 
-        imgcnt += 1
+    imgcnt += 1
 
 print("image_list num: ", len(images_list))
 print("annot_list num: ", len(annot_list))

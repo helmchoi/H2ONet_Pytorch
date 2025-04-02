@@ -124,7 +124,7 @@ def get_fingers_occ_label(gt_verts_pixel, render_seg, img_shape):
 
 
 def generate_dexycb_occ_gt():
-    data_split = "train"
+    data_split = "test"
     datalist = load_dexycb_data(data_split)
 
     for idx, data in enumerate(datalist):

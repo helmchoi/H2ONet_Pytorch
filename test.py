@@ -9,6 +9,7 @@ from loss.loss import compute_loss, compute_metric
 from common import tool
 from common.manager import Manager
 from common.config import Config
+import numpy as np
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model_dir", default="", type=str, help="Directory containing params.json")

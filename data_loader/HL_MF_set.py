@@ -19,7 +19,7 @@ class HL_MF_set(torch.utils.data.Dataset):
         self.cfg = cfg
         self.transform = transform
         self.data_split = data_split if data_split == "train" else "test"
-        self.root_dir = "data/250207_bare_hand"
+        self.root_dir = "data/2.Qual"
         self.annot_path = os.path.join(self.root_dir, "annotations")
         self.root_joint_idx = 0
         self.mano = MANO()
@@ -40,8 +40,8 @@ class HL_MF_set(torch.utils.data.Dataset):
             assert self.data_split != "train"
             
             # hand_type = ann["hand_type"]
-
-            bbox = np.array([390.0, 50.0, 500.0, 620.0]).astype(np.float32)
+            
+            bbox = np.array([300.0, 80.0, 660.0, 640.0]).astype(np.float32)
             bbox = process_bbox(bbox, img["width"], img["height"], aspect_ratio=1, expansion_factor=1.0)
             if bbox is None:
                 bbox = np.array([0, 0, img["width"] - 1, img["height"] - 1], dtype=np.float32)
